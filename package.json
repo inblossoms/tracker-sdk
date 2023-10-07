@@ -1,9 +1,10 @@
 {
-  "name": "-tracker",
+  "name": "fe-sdk-tracker",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
+  "browser": "dist/index.js",
   "scripts": {
     "build": "rollup -c"
   },
