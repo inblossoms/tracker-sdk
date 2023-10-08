@@ -2,8 +2,6 @@
 
 A SDK data burying tool for the front end, the specific implementation details can be viewed 'src/core/index.ts'.
 
-The npm package of this warehouse already exists in the market, and i have made minor modifications on the original warehouse content. If you need to use it, you can find it in the npm market or install it through 'npm I ZW-trackers -sdk'.
-
 Of course, you can expand private needs on the basis of this library.
 
 ### Options introduction:
