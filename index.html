@@ -16,17 +16,16 @@
 			history.pushState({}, '', '/a')
 		}
 		const tr = new Tracker.Tracker({
-			requestUrl: "http://localhost:3300/xxxx", //接口地址
-			historyTracker: true,
-			domTracker: true,
+			// requestUrl: "http://localhost:3300/xxxx", //接口地址
+			// historyTracker: true,
+			// domTracker: true,
 			jsError: true
 		})
 
-		new Array(-1)
-
-
 		console.log(tr);
 
+
+		Promise.resolve().then(() => console.log(c));
 	</script>
 	<img src="a" alt="">
 	<script src="a"></script>

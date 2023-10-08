@@ -131,25 +131,50 @@
       jsError() {
           this.errorEvent();
           this.promiseReject();
+          // this.ajaxError();
+          // this.fetchError();
       }
+      //   private ajaxError() {
+      //     const _send = window.XMLHttpRequest.prototype.send;
+      //     window.XMLHttpRequest.prototype.send = function (...args) {
+      //       this.addEventListener("loadend", (e) => {
+      //         this.sendTracker({
+      //           PromiseErr: {
+      //             targetKey: "reject",
+      //             event: "ajax",
+      //             message: e,
+      //           },
+      //         });
+      //       });
+      //       _send.apply(this, args);
+      //     };
+      //   }
+      //   private fetchError() {
+      //     const _fetch = fetch,
+      //       _this = this;
+      //     fetch = function (
+      //       ...args: [input: RequestInfo | URL, init?: RequestInit | undefined]
+      //     ) {
+      //       return _fetch.apply(_this, args).then((res) => {
+      //         if (res.ok) return;
+      //         _this.sendTracker({
+      //           FetchError: {
+      //             targetKey: "reject",
+      //             event: "fetch",
+      //             status: res.status,
+      //             statusText: res.statusText,
+      //             url: res.url,
+      //           },
+      //         });
+      //       });
+      //     };
+      //   }
       errorEvent() {
-          // window.addEventListener("error", (e) => {
-          //   this.sendTracker({
-          //     JsErr: {
-          //       targetKey: "message",
-          //       event: "error",
-          //       err_msg: e.message,
-          //       filename: e.filename,
-          //       lineno: e.lineno,
-          //       colno: e.colno,
-          //     },
-          //   });
-          // });
           window.addEventListener("error", (e) => {
               this.sendTracker({
                   JsErr: {
                       targetKey: "message",
-                      event: "error",
+                      event: "JsError",
                       err_msg: e.message,
                       filename: e.filename,
                       lineno: e.lineno,
@@ -163,20 +188,22 @@
                       e.target.src) {
                       const tar = e.target.outerHTML;
                       this.sendTracker({
-                          JsErr: {
-                              targetKey: "message",
-                              event: "error",
-                              resourceLoading: { errTar: tar, errInfo: e.target.src },
+                          resourceLoading: {
+                              targetKey: "src",
+                              event: "invalidResourceg",
+                              errTar: tar,
+                              errInfo: e.target.src,
                           },
                       });
                   }
                   else if (e.target instanceof HTMLLinkElement && e.target.href) {
                       const tar = e.target.outerHTML;
                       this.sendTracker({
-                          JsErr: {
-                              targetKey: "message",
-                              event: "error",
-                              invalidLink: { errTar: tar, errInfo: e.target.href },
+                          invalidLink: {
+                              targetKey: "link",
+                              event: "invalidLink",
+                              errTar: tar,
+                              errInfo: e.target.href,
                           },
                       });
                   }
