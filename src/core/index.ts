@@ -65,7 +65,9 @@ export class Tracker {
    * @param data user coustom data
    */
   public sendTracker<T extends reportTrackerData>(data: T) {
-    this.reportTracker(data);
+    console.log("senTracker:", data);
+
+    this.reportTracker({ JsError: data });
   }
 
   /**
@@ -83,7 +85,7 @@ export class Tracker {
       window.addEventListener(
         event,
         () => {
-          this.reportTracker({ event, targetKey, data });
+          this.reportTracker({ DocumentError: { event, targetKey, data } });
         },
         false
       );
@@ -136,7 +138,10 @@ export class Tracker {
       this.sendTracker({
         targetKey: "message",
         event: "error",
-        message: e.message,
+        err_msg: e.message,
+        filename: e.filename,
+        lineno: e.lineno,
+        colno: e.colno,
       });
     });
   }
@@ -154,9 +159,14 @@ export class Tracker {
   }
 
   private reportTracker<T>(data: T) {
-    const params = Object.assign(this.userOpt, data, {
-        time: new Date().getTime(),
-      }),
+    console.log("reportTracker:", data);
+    const params = Object.assign(
+        this.userOpt,
+        {
+          time: new Date().getTime(),
+        },
+        data
+      ),
       headers = {
         type: "application/x-www-form-urlencoded",
       },

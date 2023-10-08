@@ -42,8 +42,8 @@ export type reportTrackerData = {
 ### Usage:
 
 ```js
-const tr = new Tracker({
-  requestUrl: "http://localhost:3000/xxxx", //接口地址
+const tr = new Tracker.Tracker({
+  requestUrl: "http://localhost:3300/xxxx", //接口地址
   historyTracker: true,
   domTracker: true,
   jsError: true,
