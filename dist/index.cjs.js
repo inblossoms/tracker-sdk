@@ -79,8 +79,7 @@ class Tracker {
      * @param data user coustom data
      */
     sendTracker(data) {
-        console.log("senTracker:", data);
-        this.reportTracker({ JsError: data });
+        this.reportTracker(data);
     }
     /**
      * event catcher: Automatic reporting
@@ -91,7 +90,7 @@ class Tracker {
     captureEvents(MouseEventList, targetKey, data) {
         MouseEventList.forEach((event) => {
             window.addEventListener(event, () => {
-                this.reportTracker({ DocumentError: { event, targetKey, data } });
+                this.reportTracker({ PageError: { event, targetKey, data } });
             }, false);
         });
     }
@@ -118,8 +117,10 @@ class Tracker {
                 const targetValue = target.getAttribute("target-key");
                 if (targetValue) {
                     this.sendTracker({
-                        targetKey: targetValue,
-                        event,
+                        MouseEventErr: {
+                            targetKey: targetValue,
+                            event,
+                        },
                     });
                 }
             }, false);
@@ -132,12 +133,14 @@ class Tracker {
     errorEvent() {
         window.addEventListener("error", (e) => {
             this.sendTracker({
-                targetKey: "message",
-                event: "error",
-                err_msg: e.message,
-                filename: e.filename,
-                lineno: e.lineno,
-                colno: e.colno,
+                JsErr: {
+                    targetKey: "message",
+                    event: "error",
+                    err_msg: e.message,
+                    filename: e.filename,
+                    lineno: e.lineno,
+                    colno: e.colno,
+                },
             });
         });
     }
@@ -145,15 +148,16 @@ class Tracker {
         window.addEventListener("unhandledrejection", (event) => {
             event.promise.catch((error) => {
                 this.sendTracker({
-                    targetKey: "reject",
-                    event: "promise",
-                    message: error,
+                    PromiseErr: {
+                        targetKey: "reject",
+                        event: "promise",
+                        message: error,
+                    },
                 });
             });
         });
     }
     reportTracker(data) {
-        console.log("reportTracker:", data);
         const params = Object.assign(this.userOpt, {
             time: new Date().getTime(),
         }, data), headers = {

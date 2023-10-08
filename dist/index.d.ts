@@ -22,9 +22,11 @@ interface Options extends Partial<DefaultOptons> {
     requestUrl: string;
 }
 type reportTrackerData = {
-    [key: string]: any;
-    event: string;
-    targetKey: string;
+    [key: string]: {
+        [key: string]: any;
+        event: string;
+        targetKey: string;
+    };
 };
 
 declare class Tracker {

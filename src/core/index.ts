@@ -65,9 +65,7 @@ export class Tracker {
    * @param data user coustom data
    */
   public sendTracker<T extends reportTrackerData>(data: T) {
-    console.log("senTracker:", data);
-
-    this.reportTracker({ JsError: data });
+    this.reportTracker(data);
   }
 
   /**
@@ -85,7 +83,7 @@ export class Tracker {
       window.addEventListener(
         event,
         () => {
-          this.reportTracker({ DocumentError: { event, targetKey, data } });
+          this.reportTracker({ PageError: { event, targetKey, data } });
         },
         false
       );
@@ -118,8 +116,10 @@ export class Tracker {
           const targetValue = target.getAttribute("target-key");
           if (targetValue) {
             this.sendTracker({
-              targetKey: targetValue,
-              event,
+              MouseEventErr: {
+                targetKey: targetValue,
+                event,
+              },
             });
           }
         },
@@ -136,12 +136,14 @@ export class Tracker {
   private errorEvent() {
     window.addEventListener("error", (e) => {
       this.sendTracker({
-        targetKey: "message",
-        event: "error",
-        err_msg: e.message,
-        filename: e.filename,
-        lineno: e.lineno,
-        colno: e.colno,
+        JsErr: {
+          targetKey: "message",
+          event: "error",
+          err_msg: e.message,
+          filename: e.filename,
+          lineno: e.lineno,
+          colno: e.colno,
+        },
       });
     });
   }
@@ -150,16 +152,17 @@ export class Tracker {
     window.addEventListener("unhandledrejection", (event) => {
       event.promise.catch((error) => {
         this.sendTracker({
-          targetKey: "reject",
-          event: "promise",
-          message: error,
+          PromiseErr: {
+            targetKey: "reject",
+            event: "promise",
+            message: error,
+          },
         });
       });
     });
   }
 
   private reportTracker<T>(data: T) {
-    console.log("reportTracker:", data);
     const params = Object.assign(
         this.userOpt,
         {

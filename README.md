@@ -33,9 +33,11 @@ export interface DefaultOptons {
 
 # coustom report
 export type reportTrackerData = {
-  [key: string]: any;
-  event: string;
-  targetKey: string;
+  [key: string]: {
+    [key: string]: any;
+    event: string;
+    targetKey: string;
+  };
 };
 ```
 
