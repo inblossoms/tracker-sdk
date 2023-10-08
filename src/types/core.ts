@@ -1,4 +1,3 @@
-
 /**
  * @uuid user Id
  * @requestUrl 数据上报地址
@@ -32,7 +31,9 @@ export enum TrackerConfig {
 }
 
 export type reportTrackerData = {
-  [key: string]: any;
-  event: string;
-  targetKey: string;
+  [key: string]: {
+    [key: string]: any;
+    event: string;
+    targetKey: string;
+  };
 };
