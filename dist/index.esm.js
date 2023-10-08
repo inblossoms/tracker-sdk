@@ -127,6 +127,18 @@ class Tracker {
         this.promiseReject();
     }
     errorEvent() {
+        // window.addEventListener("error", (e) => {
+        //   this.sendTracker({
+        //     JsErr: {
+        //       targetKey: "message",
+        //       event: "error",
+        //       err_msg: e.message,
+        //       filename: e.filename,
+        //       lineno: e.lineno,
+        //       colno: e.colno,
+        //     },
+        //   });
+        // });
         window.addEventListener("error", (e) => {
             this.sendTracker({
                 JsErr: {
@@ -138,10 +150,36 @@ class Tracker {
                     colno: e.colno,
                 },
             });
-        });
+            const err = e.error;
+            if (!err) {
+                if ((e.target instanceof HTMLImageElement ||
+                    e.target instanceof HTMLScriptElement) &&
+                    e.target.src) {
+                    const tar = e.target.outerHTML;
+                    this.sendTracker({
+                        JsErr: {
+                            targetKey: "message",
+                            event: "error",
+                            resourceLoading: { errTar: tar, errInfo: e.target.src },
+                        },
+                    });
+                }
+                else if (e.target instanceof HTMLLinkElement && e.target.href) {
+                    const tar = e.target.outerHTML;
+                    this.sendTracker({
+                        JsErr: {
+                            targetKey: "message",
+                            event: "error",
+                            invalidLink: { errTar: tar, errInfo: e.target.href },
+                        },
+                    });
+                }
+            }
+        }, true);
     }
     promiseReject() {
         window.addEventListener("unhandledrejection", (event) => {
+            event.preventDefault();
             event.promise.catch((error) => {
                 this.sendTracker({
                     PromiseErr: {

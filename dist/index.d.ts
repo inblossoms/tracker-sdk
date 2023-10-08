@@ -22,7 +22,7 @@ interface Options extends Partial<DefaultOptons> {
     requestUrl: string;
 }
 type reportTrackerData = {
-    [key: string]: {
+    [ErrType: string]: {
         [key: string]: any;
         event: string;
         targetKey: string;
