@@ -9,18 +9,26 @@
 </head>
 
 <body>
-	<button target-key="btn">pushState</button>
-
+	<button id="btn" target-key="btn-dom">pushState</button>
+	<script src="./dist/index.js"></script>
 	<script>
-		const tr = new tracker({
-			requestUrl: "http://localhost:3000/xxxx", //接口地址
+		btn.onclick = function () {
+			history.pushState({}, '', '/a')
+		}
+		const tr = new Tracker.Tracker({
+			requestUrl: "http://localhost:3300/xxxx", //接口地址
 			historyTracker: true,
 			domTracker: true,
 			jsError: true
 		})
+
+		new Array(-1)
+
+
+		console.log(tr);
+
 	</script>
 
-	<script src="./dist/index.js"></script>
 </body>
 
 </html>

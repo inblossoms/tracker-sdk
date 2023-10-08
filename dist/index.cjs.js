@@ -79,7 +79,8 @@ class Tracker {
      * @param data user coustom data
      */
     sendTracker(data) {
-        this.reportTracker(data);
+        console.log("senTracker:", data);
+        this.reportTracker({ JsError: data });
     }
     /**
      * event catcher: Automatic reporting
@@ -90,7 +91,7 @@ class Tracker {
     captureEvents(MouseEventList, targetKey, data) {
         MouseEventList.forEach((event) => {
             window.addEventListener(event, () => {
-                this.reportTracker({ event, targetKey, data });
+                this.reportTracker({ DocumentError: { event, targetKey, data } });
             }, false);
         });
     }
@@ -133,7 +134,10 @@ class Tracker {
             this.sendTracker({
                 targetKey: "message",
                 event: "error",
-                message: e.message,
+                err_msg: e.message,
+                filename: e.filename,
+                lineno: e.lineno,
+                colno: e.colno,
             });
         });
     }
@@ -149,9 +153,10 @@ class Tracker {
         });
     }
     reportTracker(data) {
-        const params = Object.assign(this.userOpt, data, {
+        console.log("reportTracker:", data);
+        const params = Object.assign(this.userOpt, {
             time: new Date().getTime(),
-        }), headers = {
+        }, data), headers = {
             type: "application/x-www-form-urlencoded",
         }, blob = new Blob([JSON.stringify(params)], headers);
         navigator.sendBeacon(this.userOpt.requestUrl, blob);

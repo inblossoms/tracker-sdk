@@ -14,15 +14,12 @@ export default [
         file: path.resolve(__dirname, "./dist/index.cjs.js"),
         format: "cjs",
       },
-
       {
-        input: "./src/core/index.ts",
         file: path.resolve(__dirname, "./dist/index.js"),
         format: "umd",
-        name: "tracker",
+        name: "Tracker",
       },
     ],
-
     plugins: [ts()],
   },
   {
