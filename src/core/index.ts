@@ -131,25 +131,100 @@ export class Tracker {
   private jsError() {
     this.errorEvent();
     this.promiseReject();
+    // this.ajaxError();
+    // this.fetchError();
   }
 
+  //   private ajaxError() {
+  //     const _send = window.XMLHttpRequest.prototype.send;
+
+  //     window.XMLHttpRequest.prototype.send = function (...args) {
+  //       this.addEventListener("loadend", (e) => {
+  //         this.sendTracker({
+  //           PromiseErr: {
+  //             targetKey: "reject",
+  //             event: "ajax",
+  //             message: e,
+  //           },
+  //         });
+  //       });
+  //       _send.apply(this, args);
+  //     };
+  //   }
+
+  //   private fetchError() {
+  //     const _fetch = fetch,
+  //       _this = this;
+  //     fetch = function (
+  //       ...args: [input: RequestInfo | URL, init?: RequestInit | undefined]
+  //     ) {
+  //       return _fetch.apply(_this, args).then((res) => {
+  //         if (res.ok) return;
+  //         _this.sendTracker({
+  //           FetchError: {
+  //             targetKey: "reject",
+  //             event: "fetch",
+  //             status: res.status,
+  //             statusText: res.statusText,
+  //             url: res.url,
+  //           },
+  //         });
+  //       });
+  //     };
+  //   }
+
   private errorEvent() {
-    window.addEventListener("error", (e) => {
-      this.sendTracker({
-        JsErr: {
-          targetKey: "message",
-          event: "error",
-          err_msg: e.message,
-          filename: e.filename,
-          lineno: e.lineno,
-          colno: e.colno,
-        },
-      });
-    });
+    window.addEventListener(
+      "error",
+      (e) => {
+        this.sendTracker({
+          JsErr: {
+            targetKey: "message",
+            event: "JsError",
+            err_msg: e.message,
+            filename: e.filename,
+            lineno: e.lineno,
+            colno: e.colno,
+          },
+        });
+        const err = e.error;
+        if (!err) {
+          if (
+            (e.target instanceof HTMLImageElement ||
+              e.target instanceof HTMLScriptElement) &&
+            e.target.src
+          ) {
+            const tar = e.target.outerHTML;
+
+            this.sendTracker({
+              resourceLoading: {
+                targetKey: "src",
+                event: "invalidResourceg",
+                errTar: tar,
+                errInfo: e.target.src,
+              },
+            });
+          } else if (e.target instanceof HTMLLinkElement && e.target.href) {
+            const tar = e.target.outerHTML;
+
+            this.sendTracker({
+              invalidLink: {
+                targetKey: "link",
+                event: "invalidLink",
+                errTar: tar,
+                errInfo: e.target.href,
+              },
+            });
+          }
+        }
+      },
+      true
+    );
   }
 
   private promiseReject() {
     window.addEventListener("unhandledrejection", (event) => {
+      event.preventDefault();
       event.promise.catch((error) => {
         this.sendTracker({
           PromiseErr: {

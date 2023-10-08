@@ -31,7 +31,7 @@ export enum TrackerConfig {
 }
 
 export type reportTrackerData = {
-  [key: string]: {
+  [ErrType: string]: {
     [key: string]: any;
     event: string;
     targetKey: string;

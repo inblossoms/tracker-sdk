@@ -2,8 +2,6 @@
 
 A SDK data burying tool for the front end, the specific implementation details can be viewed 'src/core/index.ts'.
 
-The npm package of this warehouse already exists in the market, and i have made minor modifications on the original warehouse content. If you need to use it, you can find it in the npm market or install it through 'npm I ZW-trackers -sdk'.
-
 Of course, you can expand private needs on the basis of this library.
 
 ### Options introduction:
@@ -31,9 +29,10 @@ export interface DefaultOptons {
   extra: Record<string, any> | undefined;
 }
 
+
 # coustom report
 export type reportTrackerData = {
-  [key: string]: {
+  [ErrType: string]: {
     [key: string]: any;
     event: string;
     targetKey: string;
@@ -54,21 +53,29 @@ const tr = new Tracker.Tracker({
 
 ### Feature:
 
-1. Page Viewer: `historyTracker: true or hashTracker: true`
-2. Dom tracker: `domTracker: true`
-3. Js Error: `jsError: true`
+1.  Page Viewer: `historyTracker: true or hashTracker: true`
+2.  Dom tracker: `domTracker: true`
+3.  Js Error: `jsError: true`, following events are monitored internally:
+    - 1. SyntaxError
+    - 2. RangeError
+    - 3. ReferenceError
+    - 4. EvalError
+    - 5. TypeError
+    - 6. URIError
+    - 7. 资源加载错误
 
 ```js
-# 用户唯一表示 可以在登录之后通过接口返回的 id 进行设置值 提供了 setUserId
-# 主要是给需要监听的元素添加一个属性 用来区分是否需要监听 target-key
-tr.setUserId();
-
 # Dom tracker: 通过在元素上添加 target-key 属性，这样表可以在上报时携带元素数据信息
 <button target-key="埋点值">按钮</button>
 const tr = new Tracker({
   requestUrl: "http://localhost:3000/xxxx", //接口地址
   domTracker: true,
 });
+
+
+# 用户唯一表示 可以在登录之后通过接口返回的 id 进行设置值 提供了 setUserId
+# 主要是给需要监听的元素添加一个属性 用来区分是否需要监听 target-key
+tr.setUserId();
 
 
 # Tracker 提供了自定义上报的能力，必须包含 event 和 targetKey  两个字段
