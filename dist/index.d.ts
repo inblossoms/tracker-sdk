@@ -59,7 +59,9 @@ declare class Tracker {
     private installInnerTrack;
     private targetKeyReport;
     private jsError;
-    private errorEvent;
+    private ajaxError;
+    private fetchError;
+    private baseError;
     private promiseReject;
     private reportTracker;
 }

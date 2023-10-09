@@ -16,16 +16,24 @@
 			history.pushState({}, '', '/a')
 		}
 		const tr = new Tracker.Tracker({
-			// requestUrl: "http://localhost:3300/xxxx", //接口地址
-			// historyTracker: true,
-			// domTracker: true,
+			requestUrl: "http://localhost:3300/xxxx", //接口地址
+			historyTracker: true,
+			domTracker: true,
 			jsError: true
 		})
 
-		console.log(tr);
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "aaaaaaz")
+		xhr.send();
 
+		// window.fetch.bind(window, 'httas')
+		// 	.then(res => console.log(res.json()))
+		// 	.then(async res => console.log('====='))
+		// 	.catch(error => console.log(error, '--=-=-=-=-=-='));
 
 		Promise.resolve().then(() => console.log(c));
+
+		new Array(-1)
 	</script>
 	<img src="a" alt="">
 	<script src="a"></script>

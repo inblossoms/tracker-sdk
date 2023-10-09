@@ -1,3 +1,33 @@
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
 /**
  * @version sdk
  */
@@ -26,6 +56,7 @@ const createHistoryEvent = (type) => {
 //   记录用户页面访问量
 //   history 无法通过 popstate 监听, pushState replaceState
 
+/// <reference path="../types/global.d.ts"/>
 const MouseEventList = [
     "click",
     "dblclick",
@@ -123,66 +154,77 @@ class Tracker {
         });
     }
     jsError() {
-        this.errorEvent();
+        this.baseError();
         this.promiseReject();
-        // this.ajaxError();
-        // this.fetchError();
+        this.ajaxError();
+        this.fetchError();
     }
-    //   private ajaxError() {
-    //     const _send = window.XMLHttpRequest.prototype.send;
-    //     window.XMLHttpRequest.prototype.send = function (...args) {
-    //       this.addEventListener("loadend", (e) => {
-    //         this.sendTracker({
-    //           PromiseErr: {
-    //             targetKey: "reject",
-    //             event: "ajax",
-    //             message: e,
-    //           },
-    //         });
-    //       });
-    //       _send.apply(this, args);
-    //     };
-    //   }
-    //   private fetchError() {
-    //     const _fetch = fetch,
-    //       _this = this;
-    //     fetch = function (
-    //       ...args: [input: RequestInfo | URL, init?: RequestInit | undefined]
-    //     ) {
-    //       return _fetch.apply(_this, args).then((res) => {
-    //         if (res.ok) return;
-    //         _this.sendTracker({
-    //           FetchError: {
-    //             targetKey: "reject",
-    //             event: "fetch",
-    //             status: res.status,
-    //             statusText: res.statusText,
-    //             url: res.url,
-    //           },
-    //         });
-    //       });
-    //     };
-    //   }
-    errorEvent() {
-        window.addEventListener("error", (e) => {
-            this.sendTracker({
-                JsErr: {
-                    targetKey: "message",
-                    event: "JsError",
-                    err_msg: e.message,
-                    filename: e.filename,
-                    lineno: e.lineno,
-                    colno: e.colno,
-                },
+    ajaxError() {
+        const _send = window.XMLHttpRequest.prototype.send;
+        const _this = this;
+        window.XMLHttpRequest.prototype.send = function (...args) {
+            this.addEventListener("loadend", (e) => {
+                if (this.status >= 200 && this.status < 400)
+                    return;
+                // 请求失败，处理错误数据
+                _this.sendTracker({
+                    AjaxErr: {
+                        targetKey: "reject",
+                        event: "ajax",
+                        message: {
+                            status: this.status,
+                            statusText: this.statusText,
+                            responseURL: this.responseURL,
+                        },
+                    },
+                });
             });
-            const err = e.error;
-            if (!err) {
+            _send.apply(this, args);
+        };
+    }
+    fetchError() {
+        const _fetch = fetch, _this = this;
+        // @ts-ignore
+        fetch = function (...args) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const res = yield _fetch.apply(_this, args);
+                if (!res.ok) {
+                    _this.sendTracker({
+                        FetchError: {
+                            targetKey: "reject",
+                            event: "fetch",
+                            status: res.status,
+                            statusText: res.statusText,
+                            url: res.url,
+                        },
+                    });
+                }
+                return res;
+            });
+        };
+    }
+    baseError() {
+        window.addEventListener("error", (e) => {
+            const errInfo = e.message;
+            if (errInfo) {
+                this.sendTracker({
+                    JsErr: {
+                        targetKey: "message",
+                        event: "JsError",
+                        err_msg: e.message,
+                        filename: e.filename,
+                        lineno: e.lineno,
+                        colno: e.colno,
+                    },
+                });
+            }
+            if (!errInfo) {
                 if ((e.target instanceof HTMLImageElement ||
                     e.target instanceof HTMLScriptElement) &&
                     e.target.src) {
                     const tar = e.target.outerHTML;
                     this.sendTracker({
-                        resourceLoading: {
+                        ResourceLoadingErr: {
                             targetKey: "src",
                             event: "invalidResourceg",
                             errTar: tar,
@@ -193,7 +235,7 @@ class Tracker {
                 else if (e.target instanceof HTMLLinkElement && e.target.href) {
                     const tar = e.target.outerHTML;
                     this.sendTracker({
-                        invalidLink: {
+                        InvalidLinkErr: {
                             targetKey: "link",
                             event: "invalidLink",
                             errTar: tar,
@@ -212,7 +254,7 @@ class Tracker {
                     PromiseErr: {
                         targetKey: "reject",
                         event: "promise",
-                        message: error,
+                        message: error.toString(),
                     },
                 });
             });

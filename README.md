@@ -56,13 +56,14 @@ const tr = new Tracker.Tracker({
 1.  Page Viewer: `historyTracker: true or hashTracker: true`
 2.  Dom tracker: `domTracker: true`
 3.  Js Error: `jsError: true`, following events are monitored internally:
-    - 1. SyntaxError
-    - 2. RangeError
-    - 3. ReferenceError
-    - 4. EvalError
-    - 5. TypeError
-    - 6. URIError
-    - 7. 资源加载错误
+    1.  SyntaxError
+    2.  RangeError
+    3.  ReferenceError
+    4.  EvalError
+    5.  TypeError
+    6.  URIError
+    7.  Ajax(safeRange: 200 < code < 400) | Fetch Error
+    8.  资源加载错误
 
 ```js
 # Dom tracker: 通过在元素上添加 target-key 属性，这样表可以在上报时携带元素数据信息
