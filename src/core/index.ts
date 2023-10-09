@@ -1,3 +1,5 @@
+/// <reference path="../types/global.d.ts"/>
+
 import {
   DefaultOptons,
   Options,
@@ -129,66 +131,79 @@ export class Tracker {
   }
 
   private jsError() {
-    this.errorEvent();
+    this.baseError();
     this.promiseReject();
-    // this.ajaxError();
+    this.ajaxError();
     // this.fetchError();
   }
 
-  //   private ajaxError() {
-  //     const _send = window.XMLHttpRequest.prototype.send;
+  private ajaxError() {
+    const _send = window.XMLHttpRequest.prototype.send;
+    const _this = this;
+    window.XMLHttpRequest.prototype.send = function (...args) {
+      this.addEventListener("loadend", (e) => {
+        if (this.status >= 200 && this.status < 400) return;
+        // 请求失败，处理错误数据
 
-  //     window.XMLHttpRequest.prototype.send = function (...args) {
-  //       this.addEventListener("loadend", (e) => {
-  //         this.sendTracker({
-  //           PromiseErr: {
-  //             targetKey: "reject",
-  //             event: "ajax",
-  //             message: e,
-  //           },
-  //         });
-  //       });
-  //       _send.apply(this, args);
-  //     };
-  //   }
+        _this.sendTracker({
+          AjaxErr: {
+            targetKey: "reject",
+            event: "ajax",
+            message: {
+              status: this.status,
+              statusText: this.statusText,
+              responseURL: this.responseURL,
+            },
+          },
+        });
+      });
+      _send.apply(this, args);
+    };
+  }
 
   //   private fetchError() {
-  //     const _fetch = fetch,
+  //     const _fetch = window.fetch,
   //       _this = this;
-  //     fetch = function (
-  //       ...args: [input: RequestInfo | URL, init?: RequestInit | undefined]
-  //     ) {
-  //       return _fetch.apply(_this, args).then((res) => {
-  //         if (res.ok) return;
-  //         _this.sendTracker({
-  //           FetchError: {
-  //             targetKey: "reject",
-  //             event: "fetch",
-  //             status: res.status,
-  //             statusText: res.statusText,
-  //             url: res.url,
-  //           },
-  //         });
-  //       });
-  //     };
+
+  //     window.fetch.bind(
+  //       window,
+  //       //   @ts-ignore
+  //       async function (...args: [input: RequestInfo | URL]) {
+  //         const res = await _fetch.apply(_this, args);
+  //         if (!res.ok) {
+  //           _this.sendTracker({
+  //             FetchError: {
+  //               targetKey: "reject",
+  //               event: "fetch",
+  //               status: res.status,
+  //               statusText: res.statusText,
+  //               url: res.url,
+  //             },
+  //           });
+  //         }
+  //         return res;
+  //       }
+  //     );
   //   }
 
-  private errorEvent() {
+  private baseError() {
     window.addEventListener(
       "error",
       (e) => {
-        this.sendTracker({
-          JsErr: {
-            targetKey: "message",
-            event: "JsError",
-            err_msg: e.message,
-            filename: e.filename,
-            lineno: e.lineno,
-            colno: e.colno,
-          },
-        });
-        const err = e.error;
-        if (!err) {
+        const errInfo = e.message;
+        if (errInfo) {
+          this.sendTracker({
+            JsErr: {
+              targetKey: "message",
+              event: "JsError",
+              err_msg: e.message,
+              filename: e.filename,
+              lineno: e.lineno,
+              colno: e.colno,
+            },
+          });
+        }
+        if (!errInfo) {
           if (
             (e.target instanceof HTMLImageElement ||
               e.target instanceof HTMLScriptElement) &&
@@ -197,7 +212,7 @@ export class Tracker {
             const tar = e.target.outerHTML;
 
             this.sendTracker({
-              resourceLoading: {
+              ResourceLoadingErr: {
                 targetKey: "src",
                 event: "invalidResourceg",
                 errTar: tar,
@@ -208,7 +223,7 @@ export class Tracker {
             const tar = e.target.outerHTML;
 
             this.sendTracker({
-              invalidLink: {
+              InvalidLinkErr: {
                 targetKey: "link",
                 event: "invalidLink",
                 errTar: tar,
@@ -230,7 +245,7 @@ export class Tracker {
           PromiseErr: {
             targetKey: "reject",
             event: "promise",
-            message: error,
+            message: error.toString(),
           },
         });
       });
