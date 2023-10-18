@@ -4,6 +4,13 @@ A SDK data burying tool for the front end, the specific implementation details c
 
 Of course, you can expand private needs on the basis of this library.
 
+Buried point monitoring is usually to provide some data to the product
+1. For example, how many messages have been sent to wechat
+2. Logs monitor the upstream interface and downstream output
+So that the page error can locate the problem
+
+Therefore, data monitoring is indispensable in the development process.
+
 ### Options introduction:
 
 ```ts
