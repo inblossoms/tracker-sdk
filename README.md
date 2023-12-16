@@ -69,7 +69,7 @@ const tr = new Tracker.Tracker({
     4.  EvalError
     5.  TypeError
     6.  URIError
-    7.  Ajax(safeRange: 200 < code < 400) | Fetch Error
+    7.  Ajax(safeRange: 200 < code < 400) | <Fetch Error: not yet realized>
     8.  资源加载错误
 
 ```js
